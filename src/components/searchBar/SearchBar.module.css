@@ -1,0 +1,21 @@
+.searchBarContainer {
+    display: flex;
+    width: 400px;
+    padding: 8px 16px;
+    justify-content: space-between;
+    align-items: center;
+
+    border-radius: 8px;
+    border: 1px solid #000;
+    background: #FFF;
+}
+
+.searchInput {
+    all: unset;
+    width: 100%;
+    background: none;
+}
+
+.searchButton {
+    all: unset;
+}

@@ -1,0 +1,44 @@
+.layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 40px 50px;
+  background-color: #F7F7F7;
+}
+
+.title {
+  font-size: 32px;
+  font-weight: 400;
+  font-style: normal;
+  text-align: center;
+}
+
+.navContainer {
+  display: flex;
+  gap: 20px;
+}
+
+.navLink {
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+}
+
+.container {
+  box-sizing: border-box;
+  flex: 1 0 auto;
+  width: 100%;
+  padding: 24px 16px;
+}
+
+.footer {
+  background-color: #F7F7F7;
+  flex-shrink: 0;
+  padding: 20px 100px;
+}
