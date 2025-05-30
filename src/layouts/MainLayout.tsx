@@ -14,7 +14,7 @@ function MainLayout() {
                 </div>
             </header>
             <main className={defaultClass.container}>
-                <Outlet></Outlet>
+                <Outlet />
             </main>
             <footer className={defaultClass.footer}>
                 <p> Library </p>

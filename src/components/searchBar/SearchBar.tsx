@@ -1,118 +1,73 @@
 import defaultClass from "./searchBar.module.css";
 import {useEffect, useState} from "react";
-import {useQuery} from "@tanstack/react-query";
-import { useDebounce } from 'use-debounce';
-
-interface BookByIsbnResponse {
-    [isbn: string]: {
-        bib_key: string;
-        info_url: string;
-        preview: string;
-        preview_url: string;
-        thumbnail_url: string;
-    };
-}
-
-const baseUrl = "https://openlibrary.org";
-
+import {useDebounce} from 'use-debounce';
+import {useSearch} from "../../context/SearchContext.tsx";
 
 function SearchBar() {
-    const [items, setItems] = useState<any | undefined>(undefined);
+    const { setSearch } = useSearch();
     const [filter, setFilter] = useState<string>('');
-    const [titleFilter, setTitleFilter] = useState<boolean>(false);
-    const [authorFilter, setAuthorFilter] = useState<boolean>(false);
     const [debouncedFilter] = useDebounce(filter, 500);
-    const [urlToFetch, setUrlToFetch] = useState<string>(`${baseUrl}/search.json?q=`);
-
-    const { data, isLoading, isError, refetch } = useQuery<any, Error>({
-        queryKey: ["authorDetails", urlToFetch],
-        queryFn: async () => {
-            const res = await fetch(urlToFetch);
-            if (!res.ok) throw new Error("Network response was not ok");
-            console.log(res);
-            return res.json();
-        },
-        enabled: false
-    });
-
-    const handleFilterChange = () => {
-        if (titleFilter) {
-            setUrlToFetch(`${baseUrl}/search.json?title=${debouncedFilter}`);
-        } else if (authorFilter) {
-            setUrlToFetch(`${baseUrl}/search.json?author=${debouncedFilter}`);
-        } else {
-            setUrlToFetch(`${baseUrl}/search.json?q=${debouncedFilter}`);
-        }
-    }
 
     useEffect(() => {
-        const fetchBooksByIsbn = async (isbn?: number) => {
-            if(isbn){ console.log(isbn) }
-            try {
-                // const response = await fetch("https://openlibrary.org/search.json?q=the+lord+of+the+rings");
-                const response = await fetch(`${baseUrl}/api/books?bibkeys=ISBN:978-2253011392&format=json`);
-                if (!response.ok) {
-                    throw new Error("Network response was not ok");
-                }
-                const book: BookByIsbnResponse = await response.json();
-                console.log(book);
-                return book;
-            } catch (error) {
-                console.error("Failed to fetch books:", error);
-            }
-        }
+        // const fetchBooksByIsbn = async (isbn?: number) => {
+        //     if(isbn){ console.log(isbn) }
+        //     try {
+        //         // const response = await fetch("https://openlibrary.org/search.json?q=the+lord+of+the+rings");
+        //         const response = await fetch(`${baseUrl}/api/books.ts?bibkeys=ISBN:978-2253011392&format=json`);
+        //         if (!response.ok) {
+        //             throw new Error("Network response was not ok");
+        //         }
+        //         const book: BookByIsbnResponse = await response.json();
+        //         console.log(book);
+        //         return book;
+        //     } catch (error) {
+        //         console.error("Failed to fetch books.ts:", error);
+        //     }
+        // }
 
-        const fetchBookEditionDetails = async (olid: string = "OL30989372M") => {
-            try {
-                const response = await fetch(`${baseUrl}/books/${olid}.json`);
-                if (!response.ok) {
-                    throw new Error("Network response was not ok");
-                }
-                const bookEditionDetails: any = await response.json();
-                console.log(bookEditionDetails);
-            } catch (error) {
-                console.error("Failed to fetch books:", error);
-            }
-        }
+        // const fetchBookEditionDetails = async (olid: string = "OL30989372M") => {
+        //     try {
+        //         const response = await fetch(`${baseUrl}/books.ts/${olid}.json`);
+        //         if (!response.ok) {
+        //             throw new Error("Network response was not ok");
+        //         }
+        //         const bookEditionDetails: any = await response.json();
+        //         console.log(bookEditionDetails);
+        //     } catch (error) {
+        //         console.error("Failed to fetch books.ts:", error);
+        //     }
+        // }
 
-        const fetchBookDetails = async (olid: string = "OL27513W") => {
-            try {
-                const response = await fetch(`${baseUrl}/works/${olid}.json`);
-                if (!response.ok) {
-                    throw new Error("Network response was not ok");
-                }
-                const bookDetails: any = await response.json();
-                console.log(bookDetails);
-            } catch (error) {
-                console.error("Failed to fetch books:", error);
-            }
-        }
+        // const fetchBookDetails = async (olid: string = "OL27513W") => {
+        //     try {
+        //         const response = await fetch(`${baseUrl}/works/${olid}.json`);
+        //         if (!response.ok) {
+        //             throw new Error("Network response was not ok");
+        //         }
+        //         const bookDetails: any = await response.json();
+        //         console.log(bookDetails);
+        //     } catch (error) {
+        //         console.error("Failed to fetch books.ts:", error);
+        //     }
+        // }
 
-        const fetchAuthorDetails = async (olid: string = "OL26320A") => {
-            try {
-                const response = await fetch(`${baseUrl}/authors/${olid}.json`);
-                if (!response.ok) {
-                    throw new Error("Network response was not ok");
-                }
-                const authorDetails: any = await response.json();
-                console.log(authorDetails);
-            } catch (error) {
-                console.error("Failed to fetch books:", error);
-            }
-        }
-        // fetchBooksByIsbn();
-        // fetchBookEditionDetails();
-        // fetchBookDetails();
-        // fetchAuthorDetails();
+        // const fetchAuthorDetails = async (olid: string = "OL26320A") => {
+        //     try {
+        //         const response = await fetch(`${baseUrl}/authors/${olid}.json`);
+        //         if (!response.ok) {
+        //             throw new Error("Network response was not ok");
+        //         }
+        //         const authorDetails: any = await response.json();
+        //         console.log(authorDetails);
+        //     } catch (error) {
+        //         console.error("Failed to fetch books.ts:", error);
+        //     }
+        // }
 
-        handleFilterChange();
-
-        if(urlToFetch !== `${baseUrl}/search.json?q=`){
-            refetch()
-            console.log('refetching', urlToFetch);
-            console.log('data', data);
+        if (filter){
+            setSearch(debouncedFilter);
         }
-    }, [debouncedFilter, urlToFetch, titleFilter, authorFilter]);
+    }, [debouncedFilter]);
 
     return (
         <div className={defaultClass.searchBarContainer}>
