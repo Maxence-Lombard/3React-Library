@@ -24,12 +24,21 @@
     "noUncheckedSideEffectImports": true,
     "baseUrl": "./src/",
     "paths": {
-      "@layouts/*": [
-        "layouts/*"
+      "@assets/*": [
+        "assets/*"
       ],
       "@components/*": [
         "components/*"
-      ]
+      ],
+      "@context/*": [
+        "context/*"
+      ],
+      "@layouts/*": [
+        "layouts/*"
+      ],
+      "@models/*": [
+        "models/*"
+      ],
     }
   },
   "include": ["src"]

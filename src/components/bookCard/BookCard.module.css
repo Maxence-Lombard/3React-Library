@@ -1,0 +1,41 @@
+.container {
+    all: unset;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 356px;
+    cursor: pointer;
+}
+
+.image {
+    width: 100%;
+    height: 288px;
+    align-self: stretch;
+    aspect-ratio: 187/288;
+    border-radius: 8px;
+}
+
+.imageSkeleton {
+    display: block;
+    height: 288px;
+    aspect-ratio: 187/288;
+    border-radius: 8px;
+    background-color: #e0e0e0;
+}
+
+.title {
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+}
+
+.bottomCard {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}

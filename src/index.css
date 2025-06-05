@@ -1,12 +1,7 @@
 @import url("./reset.css");
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
 
-:root {
-  --color-primary: #2F323F;
-  --color-secondary: #64647C;
-  --color-accent: #C49F3B;
-  --color-reverse: #fff;
-}
+:root {}
 
 body {
   margin: 0;
