@@ -2,11 +2,13 @@ import defaultClass from "./searchBar.module.css";
 import {useEffect, useState} from "react";
 import {useDebounce} from 'use-debounce';
 import {useSearch} from "@context/SearchContext.tsx";
+import {useNavigate} from "react-router";
 
 function SearchBar() {
     const { setSearch } = useSearch();
     const [filter, setFilter] = useState<string>('');
     const [debouncedFilter] = useDebounce(filter, 500);
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (filter){
@@ -22,6 +24,11 @@ function SearchBar() {
                 placeholder="Search ..."
                 value={filter}
                 onChange={(e) => setFilter(e.target.value)}
+                onKeyDown={(e) => {
+                    if (e.key === 'Enter' && filter.trim() !== '') {
+                        navigate(`/search?q=${encodeURIComponent(filter)}`);
+                    }
+                }}
             />
             <button className={defaultClass.searchButton}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 16 17" fill="none">
