@@ -51,7 +51,6 @@
 @media (max-width: 575px) {
   .header {
     padding: 12px 8px;
-    gap: 8px;
   }
 
   .title {
