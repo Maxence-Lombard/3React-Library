@@ -1,13 +1,23 @@
 import {createContext, type ReactNode, useContext, useEffect, useState} from "react";
 import {useQuery} from "@tanstack/react-query";
-import type {SearchBookResponse} from "@models/books.ts";
+import type {SearchBookResponse} from "@models/searchBooks.ts";
+
+interface Filters {
+    title?: string;
+    author?: string;
+    publisher?: string;
+    first_publish_year?: string;
+    person?: string;
+}
 
 interface SearchContextType {
     data: SearchBookResponse;
     isLoading: boolean;
     isError: boolean;
+    query: string;
     setSearch: (query: string) => void;
-    setSearchType: (type: "default" | "title" | "author") => void;
+    setSearchParams: (filters: Filters) => void;
+    limit: number;
     page: number;
     setPage: (page: number) => void;
 }
@@ -20,18 +30,21 @@ const SearchContext = createContext<SearchContextType | undefined>(undefined);
 
 export const SearchProvider = ({children}: SearchProviderProps) => {
     const [query, setQuery] = useState("");
-    const [searchType, setSearchType] = useState<"default" | "title" | "author">("default");
+    const [filters, setFilters] = useState<Filters>({});
     const [enabled, setEnabled] = useState(false);
     const [page, setPage] = useState(1);
-    const limit = 20;
+    const limit = 15;
 
-    const urlToFetch = query ? `${baseUrl}/search.json?${
-        searchType === "title"
-            ? `title=${query}`
-            : searchType === "author"
-            ? `author=${query}`
-            :`q=${query}`
-    }&limit=${limit}&page=${page}` : "";
+    const filterString = Object.entries(filters)
+        .filter(([key, value]) => value !== "" && key !== "title")
+        .map(([key, value]) => `${key}=${encodeURIComponent(value ?? "")}`)
+        .join("&");
+
+    const urlToFetch = query
+        ? `${baseUrl}/search.json?q=${encodeURIComponent(query)}${filterString ? "&" + filterString : ""}&limit=${limit}&page=${page}`
+        : filterString
+            ? `${baseUrl}/search.json?${filterString}&limit=${limit}&page=${page}`
+            : "";
 
     const { data, isLoading, isError, refetch } = useQuery({
         queryKey: ["search", urlToFetch],
@@ -52,8 +65,15 @@ export const SearchProvider = ({children}: SearchProviderProps) => {
 
     const setSearch = (q: string) => {
         setQuery(q);
+        setPage(1);
         setEnabled(false);
-    }
+    };
+
+    const setSearchParams = (newFilters: Filters) => {
+        setPage(1);
+        setFilters(newFilters);
+        setEnabled(false);
+    };
 
     return (
         <SearchContext.Provider
@@ -61,8 +81,10 @@ export const SearchProvider = ({children}: SearchProviderProps) => {
                 data,
                 isLoading,
                 isError,
+                query,
                 setSearch,
-                setSearchType,
+                setSearchParams,
+                limit,
                 page,
                 setPage,
             }}>

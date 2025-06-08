@@ -1,7 +1,7 @@
 import defaultClass from "./searchBar.module.css";
 import {useEffect, useState} from "react";
 import {useDebounce} from 'use-debounce';
-import {useSearch} from "../../context/SearchContext.tsx";
+import {useSearch} from "@context/SearchContext.tsx";
 
 function SearchBar() {
     const { setSearch } = useSearch();
@@ -9,61 +9,6 @@ function SearchBar() {
     const [debouncedFilter] = useDebounce(filter, 500);
 
     useEffect(() => {
-        // const fetchBooksByIsbn = async (isbn?: number) => {
-        //     if(isbn){ console.log(isbn) }
-        //     try {
-        //         // const response = await fetch("https://openlibrary.org/search.json?q=the+lord+of+the+rings");
-        //         const response = await fetch(`${baseUrl}/api/books.ts?bibkeys=ISBN:978-2253011392&format=json`);
-        //         if (!response.ok) {
-        //             throw new Error("Network response was not ok");
-        //         }
-        //         const book: BookByIsbnResponse = await response.json();
-        //         console.log(book);
-        //         return book;
-        //     } catch (error) {
-        //         console.error("Failed to fetch books.ts:", error);
-        //     }
-        // }
-
-        // const fetchBookEditionDetails = async (olid: string = "OL30989372M") => {
-        //     try {
-        //         const response = await fetch(`${baseUrl}/books.ts/${olid}.json`);
-        //         if (!response.ok) {
-        //             throw new Error("Network response was not ok");
-        //         }
-        //         const bookEditionDetails: any = await response.json();
-        //         console.log(bookEditionDetails);
-        //     } catch (error) {
-        //         console.error("Failed to fetch books.ts:", error);
-        //     }
-        // }
-
-        // const fetchBookDetails = async (olid: string = "OL27513W") => {
-        //     try {
-        //         const response = await fetch(`${baseUrl}/works/${olid}.json`);
-        //         if (!response.ok) {
-        //             throw new Error("Network response was not ok");
-        //         }
-        //         const bookDetails: any = await response.json();
-        //         console.log(bookDetails);
-        //     } catch (error) {
-        //         console.error("Failed to fetch books.ts:", error);
-        //     }
-        // }
-
-        // const fetchAuthorDetails = async (olid: string = "OL26320A") => {
-        //     try {
-        //         const response = await fetch(`${baseUrl}/authors/${olid}.json`);
-        //         if (!response.ok) {
-        //             throw new Error("Network response was not ok");
-        //         }
-        //         const authorDetails: any = await response.json();
-        //         console.log(authorDetails);
-        //     } catch (error) {
-        //         console.error("Failed to fetch books.ts:", error);
-        //     }
-        // }
-
         if (filter){
             setSearch(debouncedFilter);
         }

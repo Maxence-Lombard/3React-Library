@@ -1,6 +1,7 @@
 .searchBarContainer {
     display: flex;
-    width: 400px;
+    width: 100%;
+    max-width: 400px;
     padding: 8px 16px;
     justify-content: space-between;
     align-items: center;
@@ -18,4 +19,20 @@
 
 .searchButton {
     all: unset;
+}
+
+@media (max-width: 500px) {
+    .searchBarContainer {
+        padding: 4px 4px;
+        border-radius: 6px;
+        font-size: 14px;
+        width: 100%;
+        max-width: 100%;
+    }
+    .searchInput {
+        font-size: 14px;
+    }
+    .searchButton {
+        font-size: 14px;
+    }
 }

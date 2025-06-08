@@ -2,6 +2,37 @@
     margin-bottom: 16px;
 }
 
+.filterContainer {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    width: 100%;
+    margin-bottom: 24px;
+}
+
+@media (max-width: 900px) {
+    .filterContainer {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 500px) {
+    .filterContainer {
+        grid-template-columns: 1fr;
+    }
+}
+
+.input {
+    display: flex;
+    height: 40px;
+    padding: 0 16px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}
 
 .h2 {
     font-size: 16px;
@@ -14,9 +45,8 @@
     display: grid;
     width: 100%;
     grid-template-columns: repeat(auto-fill, minmax(187px, 1fr));
-    row-gap: 32px;
-    column-gap: 80px;
-    justify-items: start;
+    gap: 80px;
+    place-items: center;
 }
 
 .noDataDiv {
@@ -32,4 +62,20 @@
     display: flex;
     align-items: center;
     gap: 16px;
+}
+
+.buttonContainer{
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    margin-top: 16px;
+}
+
+.loadMoreButton {
+    all: unset;
+    padding: 12px;
+    background: black;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
 }
