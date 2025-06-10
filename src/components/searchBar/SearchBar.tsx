@@ -1,5 +1,5 @@
 import defaultClass from "./searchBar.module.css";
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {useDebounce} from 'use-debounce';
 import {useSearch} from "@context/SearchContext.tsx";
 import {useNavigate} from "react-router";
@@ -9,7 +9,8 @@ function SearchBar() {
     const navigate = useNavigate();
     const [filter, setFilter] = useState<string>('');
     const [debouncedFilter] = useDebounce(filter, 500);
-    const [showDropdown, setShowDropdown] = useState(false);
+    const [showDropdown, setShowDropdown] = useState<boolean>(false);
+    const inputRef = useRef<HTMLInputElement | null>(null);
     const [itemToQuickSearch, setItemToQuickSearch] = useState<{
         title: string;
         author: string;
@@ -40,8 +41,9 @@ function SearchBar() {
     }, [debouncedFilter]);
 
     useEffect(() => {
-        if (data && data.docs && data.docs.length > 0) {
+        if (data && data.docs && data.docs.length > 0 && document.activeElement === inputRef.current) {
             getQuickSearchItems()
+            setShowDropdown(true);
         } else {
             setItemToQuickSearch(undefined);
             setShowDropdown(false);
@@ -52,6 +54,7 @@ function SearchBar() {
         <div className={defaultClass.searchWrapper}>
             <div className={defaultClass.searchBarContainer}>
                 <input
+                    ref={inputRef}
                     type="text"
                     className={defaultClass.searchInput}
                     placeholder="Search ..."

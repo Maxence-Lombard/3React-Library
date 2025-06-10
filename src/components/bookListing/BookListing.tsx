@@ -109,7 +109,7 @@ function BookListing() {
             ) : (
                 <div className={defaultClass.bookCardGrid}>
                     {displayedBooks.map((book: any) => (
-                        <BookCard key={book.key} doc={book} />
+                        <BookCard key={book.key} doc={book} data-testid="book-card" />
                     ))}
                 </div>
             )}

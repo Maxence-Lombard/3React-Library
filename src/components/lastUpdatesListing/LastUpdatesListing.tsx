@@ -49,7 +49,7 @@ function LastUpdatesListing() {
 
             <div className={defaultClass.gridContainer}>
                 {data?.map((change) => (
-                    <div key={change.id} className={defaultClass.card}>
+                    <div key={change.id} className={defaultClass.card} data-testid="change-item">
                         <div className={defaultClass.cardTop}>
                             <p> {change.author?.key.replace('/people/', '') || "Unknown"}</p>
                             <p> { change.kind } </p>

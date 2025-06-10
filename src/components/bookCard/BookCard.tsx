@@ -3,12 +3,13 @@ import type {Doc} from "@models/searchBooks.ts";
 import imagePlaceHolder from "@assets/imagePlaceHolder.svg";
 import {useNavigate} from "react-router";
 import Skeleton from "react-loading-skeleton";
+import * as React from "react";
 
-interface BookCardProps {
+interface BookCardProps extends React.HTMLAttributes<HTMLButtonElement> {
     doc: Doc | null;
 }
 
-function BookCard ({doc}: BookCardProps) {
+function BookCard ({doc, ...props}: BookCardProps) {
     const navigate = useNavigate();
 
     if (!doc) {
@@ -41,7 +42,7 @@ function BookCard ({doc}: BookCardProps) {
     };
 
     return (
-        <button type="button" onClick={handleClick} className={ defaultClass.container }>
+        <button type="button" onClick={handleClick} className={ defaultClass.container } {...props}>
             { url ? (
                 <img src={url} alt={title} className={ defaultClass.image }/>
             ) : <img src={imagePlaceHolder}  alt={"no image available"} className={ defaultClass.image }/>}
