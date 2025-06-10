@@ -256,7 +256,8 @@ function BookDetails() {
                         <div className={defaultClass.littleSection}>
                             <div className={defaultClass.sectionGap16RowCenter}>
                                 <h2 className={defaultClass.subTitle}> { book.author.name } </h2>
-                                <p> { book.author.birth_date } </p>
+                                -
+                                <p> Birth date: { book.author.birth_date } </p>
                             </div>
                             <p> { cleanAuthorDescription(typeof book.author.bio === "string"
                                 ? book.author.bio
