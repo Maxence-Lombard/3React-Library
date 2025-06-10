@@ -5,10 +5,11 @@ import BookCard from "@components/bookCard/BookCard.tsx";
 import noDataAnimation from "@assets/lottie/empty.json";
 import Lottie from "lottie-react";
 import {useDebounce} from "use-debounce";
+import type {Doc} from "@models/searchBooks.ts";
 
 function BookListing() {
     const { data, isLoading, isError, query, setSearchParams, limit, setPage, page } = useSearch()
-    const [displayedBooks, setDisplayedBooks] = useState<any[]>([]);
+    const [displayedBooks, setDisplayedBooks] = useState<Doc[]>([]);
     const [hasMore, setHasMore] = useState(true);
 
     const [authorFilter, setAuthorFilter] = useState("");
