@@ -24,6 +24,17 @@
     background-color: #e0e0e0;
 }
 
+.skeleton {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 800px;
+    width: 800px;
+    border-radius: 8px;
+    background-color: #e0e0e0;
+    margin: auto;
+}
+
 .coverImage {
     height: 488px;
     width: auto;

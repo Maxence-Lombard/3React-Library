@@ -4,13 +4,80 @@ import type {Author, BookDetails, EditionResponse, Wikipedia} from "@models/book
 import defaultClass from "./BookDetails.module.css";
 import imagePlaceHolder from "@assets/imagePlaceHolder.svg";
 import Skeleton from "react-loading-skeleton";
+import {useQuery} from "@tanstack/react-query";
+
 
 function BookDetails() {
     const { id } = useParams();
-    const [book, setBook] = useState<BookDetails | undefined>(undefined);
-    const [isImageLoaded, setIsImageLoaded] = useState(false);
     const [wikipediaLink, setWikipediaLink] = useState<string | undefined>(undefined);
     const [authorWikipediaInfos, setAuthorWikipediaInfos] = useState<Wikipedia | undefined>(undefined);
+
+    const fetchDetails = async (): Promise<BookDetails> => {
+        const workRes = await fetch(`https://openlibrary.org/works/${id}.json`);
+        if (!workRes.ok) throw new Error("Book not found");
+        const workData: BookDetails = await workRes.json();
+        const wikiUrl = workData.links?.find(link => link.url.includes("wikipedia"))?.url;
+        setWikipediaLink(wikiUrl);
+        let wikipediaData: Wikipedia | undefined = undefined;
+
+        if (wikiUrl) {
+            const title = decodeURIComponent(wikiUrl.split("/").pop()!);
+            const wikiRes = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${title}`);
+            wikipediaData = await wikiRes.json();
+        }
+
+        const authorKey = workData.authors?.[0]?.author?.key;
+        const authorData: Author = authorKey
+            ? await (await fetch(`https://openlibrary.org${authorKey}.json`)).json()
+            : null;
+
+        const editionsRes = await fetch(`https://openlibrary.org/works/${id}/editions.json?limit=1`);
+        const editionsData: EditionResponse = await editionsRes.json();
+
+        return {
+            ...workData,
+            author: authorData,
+            wikipedia: wikipediaData,
+            edition: editionsData
+        };
+    };
+    const fetchGoogleRating = async (book: BookDetails) => {
+        const isbn13 = book.edition.entries[0]?.isbn_13?.[0];
+        const isbn10 = book.edition.entries[0]?.isbn_10?.[0];
+
+        let query = "";
+        if (isbn13) {
+            query = `isbn:${isbn13}`;
+        } else if (isbn10) {
+            query = `isbn:${isbn10}`;
+        } else {
+            query = `intitle:${encodeURIComponent(book.title)}`;
+        }
+
+        const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${query}&maxResults=1`);
+        const data = await res.json();
+        return data.items?.[0]?.volumeInfo ?? { averageRating: null, ratingsCount: null };
+    };
+
+    const {
+        data: book,
+        isLoading,
+        isError
+    } = useQuery<BookDetails>({
+        queryKey: ["bookDetails", id],
+        queryFn: fetchDetails,
+        enabled: !!id
+    });
+
+    const {
+        data: googleInfo,
+        isLoading: isRatingLoading,
+        isError: isRatingError
+    } = useQuery({
+        queryKey: ["googleRating", book?.key],
+        queryFn: () => fetchGoogleRating(book!),
+        enabled: !!book
+    });
 
     async function fetchAuthorImage(authorName: string): Promise<Wikipedia | undefined> {
         try {
@@ -34,41 +101,11 @@ function BookDetails() {
 
 
     useEffect(() => {
-        const fetchDetails = async () => {
-            try {
-                const workRes = await fetch(`https://openlibrary.org/works/${id}.json`);
-                const workData: BookDetails = await workRes.json();
-                setWikipediaLink(workData.links?.find(link => link.url.includes("wikipedia"))?.url);
-                const wikiUrl = workData.links?.find(link => link.url.includes("wikipedia"))?.url;
-                let wikipediaData: Wikipedia | undefined = undefined;
-
-                if (wikiUrl) {
-                    const title = decodeURIComponent(wikiUrl.split("/").pop()!);
-                    const wikiRes = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${title}`);
-                    wikipediaData = await wikiRes.json();
-                }
-
-                const authorKey = workData.authors?.[0]?.author?.key;
-                const authorData: Author = authorKey
-                    ? await (await fetch(`https://openlibrary.org${authorKey}.json`)).json()
-                    : null;
-
-                const editionsRes = await fetch(`https://openlibrary.org/works/${id}/editions.json?limit=1`);
-                const editionsData: EditionResponse = await editionsRes.json();
-
-                setBook({
-                    ...workData,
-                    author: authorData,
-                    wikipedia: wikipediaData,
-                    edition: editionsData
-                });
-                console.log("Fetched book details:", book);
-            } catch (e) {
-                console.error("Failed to fetch book details", e);
-            }
-        };
-        fetchDetails();
-    }, [id]);
+        if (book?.author?.fuller_name || book?.author?.name) {
+            const name = book.author.fuller_name || book.author.name;
+            fetchAuthorImage(name);
+        }
+    }, [book?.author]);
 
     useEffect(() => {
         if (book?.author?.fuller_name || book?.author?.name) {
@@ -105,8 +142,8 @@ function BookDetails() {
     }
 
 
-    if (!book) return <p>Book not found.</p>;
-    console.log("Book details:", book);
+    if (isLoading) return <Skeleton className={defaultClass.skeleton} />;
+    if (isError || !book) return <p>Book not found.</p>;
     return (
         <div className={defaultClass.mainContainer}>
             <div className={defaultClass.container}>
@@ -119,7 +156,15 @@ function BookDetails() {
                 />
                 <div className={defaultClass.details}>
                     <h1 className={defaultClass.title}>{book.title}</h1>
-                    <div className={defaultClass.stars}>★★★☆☆</div>
+                    <div className={defaultClass.stars}>
+                        {isRatingLoading && "Loading rating..."}
+                        {isRatingError && "Rating not available"}
+                        {!isRatingLoading && !isRatingError && googleInfo?.averageRating ? (
+                            `⭐ ${googleInfo.averageRating} (${googleInfo.ratingsCount ?? "?"} votes)`
+                        ) : (
+                            !isRatingLoading && !isRatingError && "No rating available"
+                        )}
+                    </div>
 
                     <p className={defaultClass.description}>{cleanDescription(typeof book.description === "string"
                         ? book.description
@@ -168,26 +213,30 @@ function BookDetails() {
                 </div>
             </div>
             <div className={defaultClass.subContainer}>
-                <div className={defaultClass.card}>
-                    <div className={defaultClass.littleSection}>
-                        <h2 className={defaultClass.subTitle}> Subjects </h2>
-                        <div className={defaultClass.pinGrid}>
-                            {book.subjects?.slice(0, 10).map((subject, idx) => (
-                                <span key={idx} className={defaultClass.genre}>{subject}</span>
-                            ))}
+                { book?.subjects && book.subjects?.length > 0  ? (
+                    <div className={defaultClass.card}>
+                        <div className={defaultClass.littleSection}>
+                            <h2 className={defaultClass.subTitle}> Subjects </h2>
+                            <div className={defaultClass.pinGrid}>
+                                {book.subjects?.slice(0, 10).map((subject, idx) => (
+                                    <span key={idx} className={defaultClass.genre}>{subject}</span>
+                                ))}
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div className={defaultClass.card}>
-                    <div className={defaultClass.littleSection}>
-                        <h2 className={defaultClass.subTitle}> Characters </h2>
-                        <div className={defaultClass.pinGrid}>
-                            {book.subject_people?.slice(0, 20).map((subject, idx) => (
-                                <span key={idx} className={defaultClass.genre}>{subject}</span>
-                            ))}
+                ) : null }
+                { book?.subject_people && book.subject_people?.length > 0  ? (
+                    <div className={defaultClass.card}>
+                        <div className={defaultClass.littleSection}>
+                            <h2 className={defaultClass.subTitle}> Characters </h2>
+                            <div className={defaultClass.pinGrid}>
+                                {book.subject_people?.slice(0, 20).map((subject, idx) => (
+                                    <span key={idx} className={defaultClass.genre}>{subject}</span>
+                                ))}
+                            </div>
                         </div>
                     </div>
-                </div>
+                ) : null}
             </div>
             <div className={defaultClass.card}>
                 <div className={defaultClass.subContainer}>
@@ -233,19 +282,21 @@ function BookDetails() {
                     </div>
                 </div>
             </div>
-            <div className={defaultClass.card}>
-                <div className={defaultClass.littleSection}>
-                    <h2 className={defaultClass.subTitle}> Wikipedia description </h2>
-                    <p> { book.wikipedia?.extract } </p>
-                </div>
-                <div className={defaultClass.littleSection}>
-                    <h2 className={defaultClass.subTitle}> Book link </h2>
-                    <a className={defaultClass.wikiLink} href={wikipediaLink}>
-                        {wikipediaLink}
-                    </a>
-                </div>
+            { book.wikipedia ? (
+                <div className={defaultClass.card}>
+                    <div className={defaultClass.littleSection}>
+                        <h2 className={defaultClass.subTitle}> Wikipedia description </h2>
+                        <p> { book.wikipedia?.extract } </p>
+                    </div>
+                    <div className={defaultClass.littleSection}>
+                        <h2 className={defaultClass.subTitle}> Book link </h2>
+                        <a className={defaultClass.wikiLink} href={wikipediaLink}>
+                            {wikipediaLink}
+                        </a>
+                    </div>
 
-            </div>
+                </div>
+            ) : null }
         </div>
     );
 }

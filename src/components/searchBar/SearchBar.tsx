@@ -6,16 +6,16 @@ import {useNavigate} from "react-router";
 
 function SearchBar() {
     const { setSearch, data } = useSearch();
+    const navigate = useNavigate();
     const [filter, setFilter] = useState<string>('');
     const [debouncedFilter] = useDebounce(filter, 500);
-    const navigate = useNavigate();
+    const [showDropdown, setShowDropdown] = useState(false);
     const [itemToQuickSearch, setItemToQuickSearch] = useState<{
         title: string;
         author: string;
         coverUrl: string | null;
         workId: string | null | undefined;
     }[] | undefined>(undefined);
-    const [showDropdown, setShowDropdown] = useState(false);
 
     const getQuickSearchItems = () => {
         const items = data.docs.slice(0, 5).map(doc => {
@@ -28,7 +28,6 @@ function SearchBar() {
             return { title, author, coverUrl, workId };
         });
         setItemToQuickSearch(items)
-        setShowDropdown(true);
     }
 
     useEffect(() => {
@@ -63,6 +62,8 @@ function SearchBar() {
                             navigate(`/search?q=${encodeURIComponent(filter)}`);
                         }
                     }}
+                    onFocus={() => setShowDropdown(true)}
+                    onBlur={() => setShowDropdown(false)}
                 />
                 <button className={defaultClass.searchButton}>
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 16 17" fill="none">

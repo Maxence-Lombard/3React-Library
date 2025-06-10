@@ -1,62 +1,54 @@
 import defaultClass from './LastUpdatesListing.module.css';
 import Lottie from "lottie-react";
 import noDataAnimation from "@assets/lottie/empty.json";
-import {useEffect, useState} from "react";
+import {useState} from "react";
 import type {RecentChanges} from "@models/recentChanges.ts";
 import Skeleton from "react-loading-skeleton";
+import {useQuery} from "@tanstack/react-query";
 
 function LastUpdatesListing() {
     const [page, setPage] = useState(1);
-    const [hasMore, setHasMore] = useState(true);
-    const [isLoading, setIsLoading] = useState(true);
-    const [displayedLastInfos, setDisplayedLastInfos] = useState<RecentChanges[]>([]);
     const limit = 20;
 
-    const fetchRecentChanges = async () => {
-        setIsLoading(true);
-        try {
-            const res = await fetch(`https://openlibrary.org/recentchanges.json?limit=${limit}&page=${page}`);
+    const urlToFetch = `https://openlibrary.org/recentchanges.json?limit=${limit}&page=${page}`;
+
+    const {
+        data,
+        isLoading,
+    } = useQuery<RecentChanges[]>({
+        queryKey: ['recentChanges', urlToFetch],
+        queryFn: async () => {
+            const res = await fetch(urlToFetch);
             if (!res.ok) throw new Error("Erreur lors de la récupération des données");
-            const data: RecentChanges[] = await res.json();
+            return res.json();
+        },
+        // keepPreviousData: true,
+    });
 
-            setDisplayedLastInfos(prev => page === 1 ? data : [...prev, ...data]);
-
-            if (data.length < limit) {
-                setHasMore(false);
-            }
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchRecentChanges();
-    }, [page]);
+    const hasMore = data ? data.length === limit : false;
 
     return (
         <div>
             <h2 className={defaultClass.h2}>Last Updates</h2>
-            {isLoading && (
+            {isLoading ? (
                 <div className={defaultClass.gridContainer}>
                     {Array.from({ length: limit }).map((_, index) => (
                         <Skeleton key={index} className={defaultClass.skeleton} />
                     ))}
                 </div>
-            )}
+            ): null}
 
-            {!isLoading && displayedLastInfos.length === 0 && (
+            {!isLoading && data?.length === 0 || !data ? (
                 <div className={defaultClass.noDataDiv}>
                     <div className={defaultClass.textContainer}>
                         <p>No recent updates found.</p>
                     </div>
                     <Lottie animationData={noDataAnimation} />
                 </div>
-            )}
+            ): null}
 
             <div className={defaultClass.gridContainer}>
-                {displayedLastInfos.map((change) => (
+                {data?.map((change) => (
                     <div key={change.id} className={defaultClass.card}>
                         <div className={defaultClass.cardTop}>
                             <p> {change.author?.key.replace('/people/', '') || "Unknown"}</p>
@@ -86,7 +78,7 @@ function LastUpdatesListing() {
                 ))}
             </div>
 
-            {hasMore && (
+            {hasMore ? (
                 <div className={defaultClass.buttonContainer}>
                     <button
                         type="button"
@@ -96,7 +88,7 @@ function LastUpdatesListing() {
                         Load More
                     </button>
                 </div>
-            )}
+            ): null}
         </div>
     );
 }
