@@ -3,6 +3,7 @@ import MainLayout from "@layouts/MainLayout.tsx";
 import BookListing from "@components/bookListing/BookListing.tsx";
 import LastUpdatesListing from "@components/lastUpdatesListing/LastUpdatesListing.tsx";
 import BookDetails from "@components/bookDetails/BookDetails.tsx";
+import Error404 from "@components/error404/Error404.tsx";
 
 export const Router = () => {
     return <Routes>
@@ -10,6 +11,7 @@ export const Router = () => {
             <Route index element={<LastUpdatesListing />}></Route>
             <Route path='/search' element={<BookListing />}></Route>
             <Route path='/book/:id/details' element={<BookDetails />}></Route>
+            <Route path='*' element={<Error404 />}></Route>
         </Route>
     </Routes>
 }

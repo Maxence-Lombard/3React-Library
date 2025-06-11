@@ -1,0 +1,38 @@
+.container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    gap: 40px;
+}
+
+.subcontainer {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.error {
+    font-size: 180px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+}
+
+.subtitle {
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+}
+
+.button {
+    all: unset;
+    padding: 12px;
+    background: black;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    width: fit-content;
+}
+
