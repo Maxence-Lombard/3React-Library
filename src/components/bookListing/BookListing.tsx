@@ -92,7 +92,7 @@ function BookListing() {
             <div className={defaultClass.head}>
                 <h2 className={defaultClass.h2}> BOOK LISTING </h2>
             </div>
-            {!query ? null :  isLoading && displayedBooks.length === 0 ? (
+            {isLoading && displayedBooks.length === 0 ? (
                 <div className={defaultClass.bookCardGrid}>
                     {Array.from({ length: limit }).map((_, i) => (
                         <BookCard key={i} doc={null} />
